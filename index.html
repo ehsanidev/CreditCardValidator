@@ -159,6 +159,24 @@
             const formatted = value.replace(/(\d{4})(?=\d)/g, '$1 ');
             e.target.value = formatted.substring(0, 19);
         });
+
+        // Tests
+        function runTests() {
+  const testCases = [
+    { number: "4111 1111 1111 1111", expected: true },
+    { number: "5500 0000 0000 0004", expected: true },
+    { number: "3400 0000 0000 009", expected: true },
+    { number: "4111 1111 1111 1112", expected: false },
+    { number: "1234 5678 9012 3456", expected: false }
+  ];
+
+  testCases.forEach((test, index) => {
+    const result = validateCreditCard(test.number);
+    console.log(`Test ${index + 1}: ${test.number} => ${result.valid} (Expected: ${test.expected}) - ${result.valid === test.expected ? 'PASS' : 'FAIL'}`);
+  });
+}
+        
+runTests();
     </script>
 </body>
 </html>
