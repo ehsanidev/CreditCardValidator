@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Card Validator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .card-validator {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        .valid {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        .not-valid {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        .card-type {
+            margin-top: 10px;
+            font-style: italic;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="card-validator">
+        <h1>Credit Card Validator</h1>
+        <div class="input-group">
+            <label for="cardNumber">Enter Credit Card Number:</label>
+            <input type="text" id="cardNumber" placeholder="e.g. 4091 1315 6056 3988" maxlength="19">
+            <div class="card-type" id="cardType"></div>
+        </div>
+        <button onclick="validateCard()">Validate Card</button>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        function validateCreditCard(cardNumber) {
+            const cleaned = cardNumber.replace(/\D/g, '');
+            
+            if (cleaned.length !== 16) {
+                return {valid: false, cardType: 'Unknown'};
+            }
+            
+            const digits = cleaned.split('').reverse().map(Number);
+            let sum = 0;
+            
+            for (let i = 0; i < digits.length; i++) {
+                let digit = digits[i];
+                
+                if (i % 2 === 1) {
+                    digit *= 2;
+                    if (digit > 9) {
+                        digit -= 9;
+                    }
+                }
+                sum += digit;
+            }
+            
+            const isValid = sum % 10 === 0;
+            const cardType = detectCardType(cleaned);
+            
+            return {valid: isValid, cardType: cardType};
+        }
+
+        function detectCardType(cardNumber) {
+            // Visa
+            if (/^4/.test(cardNumber)) return 'Visa';
+            // Mastercard
+            if (/^5[1-5]/.test(cardNumber)) return 'Mastercard';
+            // American Express
+            if (/^3[47]/.test(cardNumber)) return 'American Express';
+            // Discover
+            if (/^6(?:011|5)/.test(cardNumber)) return 'Discover';
+            
+            return 'Unknown';
+        }
+
+        function validateCard() {
+            const cardNumber = document.getElementById('cardNumber').value;
+            const resultDiv = document.getElementById('result');
+            const cardTypeDiv = document.getElementById('cardType');
+            
+            const validation = validateCreditCard(cardNumber);
+            
+            if (validation.valid) {
+                resultDiv.textContent = '✓ Valid Credit Card Number';
+                resultDiv.className = 'result valid';
+                cardTypeDiv.textContent = `Card Type: ${validation.cardType}`;
+            } else {
+                resultDiv.textContent = '✗ Not a valid Credit Card Number';
+                resultDiv.className = 'result not-valid';
+                cardTypeDiv.textContent = '';
+            }
+        }
+
+        // Auto-format card number with spaces
+        document.getElementById('cardNumber').addEventListener('input', function(e) {
+            const value = e.target.value.replace(/\D/g, '');
+            const formatted = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+            e.target.value = formatted.substring(0, 19);
+        });
+    </script>
+</body>
+</html>
