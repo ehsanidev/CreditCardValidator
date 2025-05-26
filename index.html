@@ -94,6 +94,36 @@
     </div>
 
     <script>
+    function validateCreditCard(cardNumber) {
+        const cleaned = cardNumber.replace(/\D/g, '');
+
+        if (cleaned.length !== 16) {
+            return {valid: false, cardType: 'Unknown'};
+        }
+
+        const digits = cleaned.split('').reverse().map(Number);
+        let sum = 0;
+
+        for (let i = 0; i < digits.length; i++) {
+            let digit = digits[i];
+
+            if (i % 2 === 1) {
+                digit *= 2;
+                if (digit > 9) {
+                    digit -= 9;
+                }
+            }
+            sum += digit;
+        }
+
+        const isValid = sum % 10 === 0;
+        const cardType = detectCardType(cleaned);
+
+        return {valid: isValid, cardType: cardType};
+    }
+
+    function detectCardType(cardNumber) {
+        if (/^4/.test(cardNumber)) return 'Visa';
         if (/^5[1-5]/.test(cardNumber)) return 'Mastercard';
         if (/^3[47]/.test(cardNumber)) return 'American Express';
         if (/^6(?:011|5)/.test(cardNumber)) return 'Discover';
