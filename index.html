@@ -94,89 +94,54 @@
     </div>
 
     <script>
-        function validateCreditCard(cardNumber) {
-            const cleaned = cardNumber.replace(/\D/g, '');
-            
-            if (cleaned.length !== 16) {
-                return {valid: false, cardType: 'Unknown'};
-            }
-            
-            const digits = cleaned.split('').reverse().map(Number);
-            let sum = 0;
-            
-            for (let i = 0; i < digits.length; i++) {
-                let digit = digits[i];
-                
-                if (i % 2 === 1) {
-                    digit *= 2;
-                    if (digit > 9) {
-                        digit -= 9;
-                    }
-                }
-                sum += digit;
-            }
-            
-            const isValid = sum % 10 === 0;
-            const cardType = detectCardType(cleaned);
-            
-            return {valid: isValid, cardType: cardType};
-        }
+        if (/^5[1-5]/.test(cardNumber)) return 'Mastercard';
+        if (/^3[47]/.test(cardNumber)) return 'American Express';
+        if (/^6(?:011|5)/.test(cardNumber)) return 'Discover';
+        return 'Unknown';
+    }
 
-        function detectCardType(cardNumber) {
-            // Visa
-            if (/^4/.test(cardNumber)) return 'Visa';
-            // Mastercard
-            if (/^5[1-5]/.test(cardNumber)) return 'Mastercard';
-            // American Express
-            if (/^3[47]/.test(cardNumber)) return 'American Express';
-            // Discover
-            if (/^6(?:011|5)/.test(cardNumber)) return 'Discover';
-            
-            return 'Unknown';
-        }
+    function validateCard() {
+        const cardNumber = document.getElementById('cardNumber').value;
+        const resultDiv = document.getElementById('result');
+        const cardTypeDiv = document.getElementById('cardType');
 
-        function validateCard() {
-            const cardNumber = document.getElementById('cardNumber').value;
-            const resultDiv = document.getElementById('result');
-            const cardTypeDiv = document.getElementById('cardType');
-            
-            const validation = validateCreditCard(cardNumber);
-            
-            if (validation.valid) {
-                resultDiv.textContent = '✓ Valid Credit Card Number';
-                resultDiv.className = 'result valid';
-                cardTypeDiv.textContent = `Card Type: ${validation.cardType}`;
-            } else {
-                resultDiv.textContent = '✗ Not a valid Credit Card Number';
-                resultDiv.className = 'result not-valid';
-                cardTypeDiv.textContent = '';
-            }
-        }
+        const validation = validateCreditCard(cardNumber);
 
-        // Auto-format card number with spaces
-        document.getElementById('cardNumber').addEventListener('input', function(e) {
-            const value = e.target.value.replace(/\D/g, '');
-            const formatted = value.replace(/(\d{4})(?=\d)/g, '$1 ');
-            e.target.value = formatted.substring(0, 19);
+        if (validation.valid) {
+            resultDiv.textContent = '✓ Valid Credit Card Number';
+            resultDiv.className = 'result valid';
+            cardTypeDiv.textContent = `Card Type: ${validation.cardType}`;
+        } else {
+            resultDiv.textContent = '✗ Not a valid Credit Card Number';
+            resultDiv.className = 'result not-valid';
+            cardTypeDiv.textContent = '';
+        }
+    }
+
+    // Auto-format card number with spaces
+    document.getElementById('cardNumber').addEventListener('input', function(e) {
+        const value = e.target.value.replace(/\D/g, '');
+        const formatted = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+        e.target.value = formatted.substring(0, 19);
+    });
+
+    // Tests
+    function runTests() {
+        const testCases = [
+            { number: "4111 1111 1111 1111", expected: true },
+            { number: "5500 0000 0000 0004", expected: true },
+            { number: "3400 0000 0000 009", expected: true },
+            { number: "4111 1111 1111 1112", expected: false },
+            { number: "1234 5678 9012 3456", expected: false }
+        ];
+
+        testCases.forEach((test, index) => {
+            const result = validateCreditCard(test.number);
+            console.log(`Test ${index + 1}: ${test.number} => ${result.valid} (Expected: ${test.expected}) - ${result.valid === test.expected ? 'PASS' : 'FAIL'}`);
         });
+    }
 
-        // Tests
-        function runTests() {
-  const testCases = [
-    { number: "4111 1111 1111 1111", expected: true },
-    { number: "5500 0000 0000 0004", expected: true },
-    { number: "3400 0000 0000 009", expected: true },
-    { number: "4111 1111 1111 1112", expected: false },
-    { number: "1234 5678 9012 3456", expected: false }
-  ];
-
-  testCases.forEach((test, index) => {
-    const result = validateCreditCard(test.number);
-    console.log(`Test ${index + 1}: ${test.number} => ${result.valid} (Expected: ${test.expected}) - ${result.valid === test.expected ? 'PASS' : 'FAIL'}`);
-  });
-}
-        
-runTests();
-    </script>
+    runTests();
+</script>
 </body>
 </html>
